@@ -1,0 +1,41 @@
+mkdir frontend
+cd    frontend 
+git add.
+git conmmit-m" Commit3:/Added frontend with index.html"
+git push
+nano index.html
+html
+<!DOCTYPE html>
+<html> 
+  <head>
+ <title> My Token dApp </title>
+ <script src = "https//cdn.jsdenlivr.net/npm/ethers@5.7.2/distr/ethers.min.js"></script>
+  </head>
+  <body>
+    <h1>My Token dApp</h1>h1>
+ <button id = " connect"> Connect Rabby</button>
+ <button id = "balance"> Check balance</button>
+ <p id = " output"></p>
+ <script>
+  const contract Address = "0x YOUR_DEPLOYED_CONNECT";
+   const abi = [ " function balanceOf(address) view returns (unit256)" ];
+   let provider, signer, contract 
+   document.getElementBy Id( "connect).one click= async ()=> {         
+   if(window.etherum) {
+     provider= new ethers.provide.Web3Provider (window.etherum);
+     await provider.send(" ethe_request Accounts", []);
+     signer = provider.getSigner();
+     contract= new ethers.contract(contractAddress,abi,signer);
+     document.get Element ById("Output"). inner Text= "Connected";
+   } else {
+     alert("Raby not found!");
+   }
+     };
+   document.getElement ById (" balance").oneclick= async () =>{
+     const address= awaitsigner.getAddress();
+     const bal= await contract.balanceOf(address);
+     document.getElement By Id("output").innerText = "Balance:" + bal.toString ();
+       };
+     </script>
+  </body>
+  f
