@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Vercel dApp with Wallet Connect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            background-color: #fff;
+            max-width: 500px;
+            width: 90%;
+        }
+        h1 {
+            color: #0070f3;
+            margin-bottom: 20px;
+        }
+        p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #0070f3;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #005bb5;
+        }
+        #accountDisplay {
+            margin-top: 25px;
+            padding: 15px;
+            border: 1px dashed #ccc;
+            border-radius: 5px;
+            background-color: #e9eff7;
+            word-wrap: break-word; /* To ensure long addresses wrap */
+        }
+        .error-message {
+            color: red;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Your Vercel dApp!</h1>
+        <p>Click the button below to connect your Ethereum wallet.</p>
+        <button id="connectButton">Connect Wallet</button>
+        <div id="accountDisplay">
+            <p>Wallet not connected.</p>
+        </div>
+        <p class="error-message" id="errorMessage"></p>
+    </div>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const accountDisplay = document.getElementById('accountDisplay');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Function to update the UI with account info
+        function updateAccountDisplay(accounts) {
+            if (accounts && accounts.length > 0) {
+                accountDisplay.innerHTML = `<p><strong>Connected Account:</strong><br>${accounts[0]}</p>`;
+                connectButton.textContent = 'Wallet Connected';
+                connectButton.disabled = true; // Disable button after connection
+                errorMessage.textContent = ''; // Clear any previous errors
+            } else {
+                accountDisplay.innerHTML = '<p>Wallet not connected.</p>';
+                connectButton.textContent = 'Connect Wallet';
+                connectButton.disabled = false;
+            }
+        }
+
+        // Event listener for the connect button
+        connectButton.addEventListener('click', async () => {
+            errorMessage.textContent = ''; // Clear previous errors
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Request account access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    updateAccountDisplay(accounts);
+                } catch (error) {
+                    console.error("User denied account access or other error:", error);
+                    errorMessage.textContent = `Error connecting wallet: ${error.message || error.code}`;
+                    updateAccountDisplay([]); // Clear display on error
+                }
+            } else {
+                errorMessage.textContent = 'Ethereum provider (like Rabby or MetaMask) not detected. Please install one.';
+                console.error('Ethereum provider not detected!');
+            }
+        });
+
+        // Optional: Check connection status on page load (if already connected)
+        // This might not always show the connected account immediately if
+        // the user hasn't actively connected to this dApp session.
+        // For persistent connection, you'd typically store state.
+        window.addEventListener('load', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // Try to get accounts without prompting if already connected
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    updateAccountDisplay(accounts);
+
+                    // Listen for account changes
+                    window.ethereum.on('accountsChanged', (newAccounts) => {
+                        console.log("Accounts changed:", newAccounts);
+                        updateAccountDisplay(newAccounts);
+                    });
+
+                    // Listen for chain changes
+                    window.ethereum.on('chainChanged', (chainId) => {
+                        console.log("Chain changed to:", chainId);
+                        // You might want to reload the page or update chain-specific info
+                        // window.location.reload();
+                    });
+
+                } catch (error) {
+                    console.warn("Could not retrieve accounts on load:", error);
+                    updateAccountDisplay([]);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
